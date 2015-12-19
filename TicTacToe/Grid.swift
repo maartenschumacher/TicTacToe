@@ -21,15 +21,21 @@ struct Grid<Element> {
             )
         )
         
-        self.size = Size(width: columns, height: rows)
+        self.size = Size(
+            width: Line(length: columns),
+            height: Line(length: rows)
+        )
     }
     
     init(points: [[Element]]) {
         self.points = points
-        self.size = Size(width: points[0].count, height: points.count)
+        self.size = Size(
+            width: Line(length: points[0].count),
+            height: Line(length: points.count)
+        )
     }
     
-    func get(at: Point) -> Element {
+    func get(at at: Point) -> Element {
         return points[at.y][at.x]
     }
     
@@ -40,12 +46,3 @@ struct Grid<Element> {
     }
 }
 
-struct Point {
-    let x: Int
-    let y: Int
-}
-
-struct Size {
-    let width: Int
-    let height: Int
-}

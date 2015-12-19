@@ -8,14 +8,17 @@
 
 import Foundation
 
-func zip<T, U>(one one:[T], two: [U]) -> [(T,U)] {
-    var result: [(T,U)] = []
-    var i: Int = 0
-    
-    while (i < one.count) && (i < two.count) {
-        result.append((one[i], two[i]))
-        i += 1
+extension SequenceType where Generator.Element : Equatable {
+    func containsCount(filterElement: Self.Generator.Element) -> Int {
+        return self
+            .filter { element in
+                element == filterElement
+            }
+            .count
     }
-    
-    return result
+}
+
+struct Count<Element> {
+    let element: Element
+    let count: Int
 }

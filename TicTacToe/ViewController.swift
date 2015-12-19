@@ -24,17 +24,17 @@ class ViewController: UIViewController {
     @IBOutlet weak var victoryLabel: UILabel!
     
     let disposeBag = DisposeBag()
-    var buttons: [ButtonComponent] = []
+    
     let initialState: Grid<GridButtonState> = Grid(
         with: 3,
         columns: 3,
-        repeatedValue: GridButtonState.Empty
+        repeatedValue: .Empty
     )
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        buttons = [
+        let buttons = [
             ButtonComponent(button: button0, point: Point(x: 0, y: 0)),
             ButtonComponent(button: button1, point: Point(x: 1, y: 0)),
             ButtonComponent(button: button2, point: Point(x: 2, y: 0)),
@@ -58,8 +58,8 @@ class ViewController: UIViewController {
                 return grid.set(GridButtonState.Circle, at: point)
             }
             .subscribeNext { grid in
-                for gridButton in self.buttons {
-                    gridButton.state = grid.get(gridButton.point)
+                for gridButton in buttons {
+                    gridButton.state = grid.get(at: gridButton.point)
                 }
                 
                 if TicTacToe.victory(grid) {
@@ -72,7 +72,7 @@ class ViewController: UIViewController {
 }
 
 class ButtonComponent {
-    let button: UIButton
+    weak var button: UIButton!
     let point: Point
     
     var state: GridButtonState = .Empty {
