@@ -25,7 +25,7 @@ class ViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     
-    let initialState: Grid<GridButtonState> = Grid(
+    let initialState: TicTacToeGrid = Grid(
         with: 3,
         columns: 3,
         repeatedValue: .Empty
@@ -55,7 +55,7 @@ class ViewController: UIViewController {
             .toObservable()
             .merge()
             .scan(initialState) { grid, point in
-                return grid.set(GridButtonState.Circle, at: point)
+                return grid.set(Sign.Circle, at: point)
             }
             .subscribeNext { grid in
                 for gridButton in buttons {
@@ -75,7 +75,7 @@ class ButtonComponent {
     weak var button: UIButton!
     let point: Point
     
-    var state: GridButtonState = .Empty {
+    var state: Sign = .Empty {
         willSet {
             button.setTitle(newValue.description, forState: .Normal)
         }

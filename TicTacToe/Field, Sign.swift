@@ -1,5 +1,5 @@
 //
-//  GridButtonState.swift
+//  Sign.swift
 //  TicTacToe
 //
 //  Created by Maarten Schumacher on 12/13/15.
@@ -8,7 +8,12 @@
 
 import Foundation
 
-enum GridButtonState {
+struct Field<T> {
+    let point: Point
+    let element: T
+}
+
+enum Sign {
     case Empty
     case Cross
     case Circle

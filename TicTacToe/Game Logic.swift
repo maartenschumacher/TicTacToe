@@ -8,77 +8,50 @@
 
 import Foundation
 
-let computerField = GridButtonState.Cross
-let playerField = GridButtonState.Circle
+let computerField = Sign.Cross
+let playerField = Sign.Circle
 
-struct TicTacToe {
-    static func victory(grid: Grid<GridButtonState>) -> Bool {
-        return [
-            grid.getRows(),
-            grid.getColumns(),
-            grid.getDiagonalsOfSquare()
-        ]
-        .flatten()
+typealias Move = (Sign, Point)
+typealias TicTacToeGrid = Grid<Field<Sign>>
+
+func victory(grid: TicTacToeGrid) -> Bool {
+    return grid
+        .getAllLines()
         .contains { line in
-            return line == [.Circle, .Circle, .Circle] || line == [.Cross, .Cross, .Cross]
-        }
+            return line == [.Circle, .Circle, .Circle]
+                || line == [.Cross, .Cross, .Cross]
     }
-    
-    func analyzeLine(line: [GridButtonState]) -> GridLineAnalysis {
-        return GridLineAnalysis(
-            empty: line.containsCount(.Empty),
-            circle: line.containsCount(.Circle),
-            cross: line.containsCount(.Cross)
-        )
-    }
-    
-    
 }
 
-enum GridLineAnalysis {
-    case Empty
-    case Full
-    case One(GridButtonState)
-    case Two(GridButtonState)
-    case Mixed
+func computerMove(grid: TicTacToeGrid) -> Move {
+    return grid
+        .getAllLines()
+        .filter { $0.contains(.Empty) }
+        .map { GridLineAnalysis($0) }
+}
+
+struct GridLineAnalysis: Equatable {
+    let empties: Int
+    let circles: Int
+    let crosses: Int
     
-    static func analyze(line: [GridButtonState]) -> GridLineAnalysis {
-        let empties = line.containsCount(.Empty)
-        let circles = line.containsCount(.Circle)
-        let crosses = line.containsCount(.Cross)
-        
-        if empties == 0 {
-            return .Full
-        } else if empties == 3 {
-            return .Empty
-        } else if empties == 1 {
-            if circles == 2 {
-                return .Two(.Circle)
-            } else if crosses == 2 {
-                return .Two(.Cross)
-            } else if crosses == 1 && circles == 1 {
-                return .Mixed
-            }
-        } else if empties == 2 {
-            if circles == 1 {
-                return .One(.Circle)
-            } else if crosses == 1 {
-                return .One(.Cross)
-            }
-        }
+    init(empties: Int, circles: Int, crosses: Int) {
+        self.empties = empties
+        self.circles = circles
+        self.crosses = crosses
     }
     
-    func priority(player: Player) -> Priority {
-        switch self {
-        case .Two(let field):
-            return field.returnIf(
-                empty: .NoPriority,
-                cross: player.returnIf(cross: .Highest, circle: .High),
-                circle: player.returnIf(cross: .High, circle: .Highest)
-            )
-            case 
-        }
+    init(line: [Sign]) {
+        self.empties = line.containsCount(.Empty)
+        self.circles = line.containsCount(.Circle)
+        self.crosses = line.containsCount(.Cross)
     }
+}
+
+func ==(lhs: GridLineAnalysis, rhs: GridLineAnalysis) -> Bool {
+    return lhs.empties == rhs.empties
+        && lhs.circles == rhs.circles
+        && lhs.crosses == rhs.crosses
 }
 
 enum Player {
@@ -92,17 +65,36 @@ enum Player {
         }
     }
     
-    var gridButtonState: GridButtonState {
+    var Sign: Sign {
         return returnIf(cross: .Cross, circle: .Circle)
     }
 }
 
 enum Priority: Int {
-    case Lowest = 0
+    case NoPriority = 0
+    case Lowest
     case Low
     case Medium
     case High
     case Highest
-    case NoPriority
+    
+    static func filterHighest(list: [Priority]) -> [Priority] {
+        return filterHighest(list, start: .Highest)
+    }
+    
+    private static func filterHighest(list: [Priority], start: Priority) -> [Priority] {
+        if start == .NoPriority {
+            return list
+        }
+        
+        let result = list.filter { $0 == start }
+        
+        return result
+            .isEmpty
+            .returnIf(
+                isTrue: filterHighest(list, start: Priority(rawValue: start.rawValue - 1)!),
+                isFalse: result
+            )
+    }
 }
 

@@ -22,16 +22,16 @@ struct Grid<Element> {
         )
         
         self.size = Size(
-            width: Line(length: columns),
-            height: Line(length: rows)
+            width: HorizontalLine(length: columns),
+            height: VerticalLine(length: rows)
         )
     }
     
     init(points: [[Element]]) {
         self.points = points
         self.size = Size(
-            width: Line(length: points[0].count),
-            height: Line(length: points.count)
+            width: HorizontalLine(length: points[0].count),
+            height: VerticalLine(length: points.count)
         )
     }
     

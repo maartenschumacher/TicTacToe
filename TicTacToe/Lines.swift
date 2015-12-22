@@ -28,6 +28,14 @@ extension Line {
     var range: Range<Int> {
         return Range<Int>(start: 0, end: length)
     }
+    
+    func range(from from: Int) -> Range<Int> {
+        return Range<Int>(start: from, end: length)
+    }
+    
+    func range(to to: Int) -> Range<Int> {
+        return Range<Int>(start: 0, end: to + 1)
+    }
 }
 
 struct HorizontalLine: Line {

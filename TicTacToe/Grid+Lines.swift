@@ -63,6 +63,15 @@ extension Grid {
             )
         ]
     }
+    
+    func getAllLines() -> [[Element]] {
+        return [
+                getRows(),
+                getColumns(),
+                getDiagonalsOfSquare()
+            ]
+            .flatMap { $0 }
+    }
 }
 
 

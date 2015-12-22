@@ -18,7 +18,40 @@ extension SequenceType where Generator.Element : Equatable {
     }
 }
 
-struct Count<Element> {
-    let element: Element
+extension Array {
+    func randomItem() -> Element {
+        let index = Int(arc4random_uniform(UInt32(self.count)))
+        return self[index]
+    }
+}
+
+struct Count<T: Equatable>: Equatable {
+    let element: T
     let count: Int
+    
+    init(element: T, inArray: [T]) {
+        self.element = element
+        self.count = inArray
+            .filter { $0 == element }
+            .count
+    }
+    
+    init(element: T, count: Int) {
+        self.element = element
+        self.count = count
+    }
+}
+
+func ==<T>(lhs: Count<T>, rhs: Count<T>) -> Bool {
+    return (lhs.element == rhs.element) && (lhs.count == rhs.count)
+}
+
+extension Bool {
+    func returnIf<T>(isTrue isTrue: T, isFalse: T) -> T {
+        if self == true {
+            return isTrue
+        } else {
+            return isFalse
+        }
+    }
 }
