@@ -9,8 +9,8 @@
 import Foundation
 
 struct Field<T> {
-    let point: Point
     let element: T
+    let point: Point
 }
 
 enum Sign {

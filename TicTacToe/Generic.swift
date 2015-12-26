@@ -8,6 +8,11 @@
 
 import Foundation
 
+infix operator |>   { precedence 200 associativity left }
+func |> <T,U>(lhs: T, rhs: T -> U) -> U {
+    return rhs(lhs)
+}
+
 extension SequenceType where Generator.Element : Equatable {
     func containsCount(filterElement: Self.Generator.Element) -> Int {
         return self

@@ -8,26 +8,32 @@
 
 import Foundation
 
-let computerField = Sign.Cross
-let playerField = Sign.Circle
+let computer = Player.Cross
+let human = Player.Circle
 
-typealias Move = (Sign, Point)
-typealias TicTacToeGrid = Grid<Field<Sign>>
+typealias TicTacToeGrid = Grid<Sign>
 
 func victory(grid: TicTacToeGrid) -> Bool {
     return grid
         .getAllLines()
         .contains { line in
-            return line == [.Circle, .Circle, .Circle]
-                || line == [.Cross, .Cross, .Cross]
+            return line.elements == [.Circle, .Circle, .Circle]
+                || line.elements == [.Cross, .Cross, .Cross]
     }
 }
 
-func computerMove(grid: TicTacToeGrid) -> Move {
-    return grid
+func computerMove(grid: TicTacToeGrid) -> Field<Sign> {
+    let lines = grid
         .getAllLines()
-        .filter { $0.contains(.Empty) }
-        .map { GridLineAnalysis($0) }
+        .filter { $0.elements.contains(.Empty) }
+        
+    let highestPriorities = lines
+        .map { GridLineAnalysis(line: $0.elements) }
+        .map { $0.priority }
+        |> Priority.filterHighest
+    
+    return lines
+        .filter { highestPriorities.contains(<#T##element: Priority##Priority#>)
 }
 
 struct GridLineAnalysis: Equatable {
@@ -45,6 +51,11 @@ struct GridLineAnalysis: Equatable {
         self.empties = line.containsCount(.Empty)
         self.circles = line.containsCount(.Circle)
         self.crosses = line.containsCount(.Cross)
+    }
+    
+    var priority: Priority {
+        return ruleMatching(analysis: self)?
+            .priority(computer) ?? .NoPriority
     }
 }
 
@@ -65,7 +76,7 @@ enum Player {
         }
     }
     
-    var Sign: Sign {
+    var sign: Sign {
         return returnIf(cross: .Cross, circle: .Circle)
     }
 }

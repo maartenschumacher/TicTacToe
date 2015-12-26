@@ -13,6 +13,12 @@ struct Rule {
     let priority: (Player) -> (Priority)
 }
 
+func ruleMatching(analysis analysis: GridLineAnalysis) -> Rule? {
+    return rules
+        .filter { $0.analysis == analysis }
+        .first
+}
+
 let rules: [Rule] = [
     
     Rule(
