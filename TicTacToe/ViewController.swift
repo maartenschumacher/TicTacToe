@@ -22,70 +22,122 @@ class ViewController: UIViewController {
     @IBOutlet weak var button8: UIButton!
     
     @IBOutlet weak var victoryLabel: UILabel!
+    @IBOutlet weak var playAgainButton: UIButton!
     
     let disposeBag = DisposeBag()
     
-    let initialState: TicTacToeGrid = Grid(
-        with: 3,
-        columns: 3,
-        repeatedValue: .Empty
-    )
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
         let buttons = [
-            ButtonComponent(button: button0, point: Point(x: 0, y: 0)),
-            ButtonComponent(button: button1, point: Point(x: 1, y: 0)),
-            ButtonComponent(button: button2, point: Point(x: 2, y: 0)),
-            ButtonComponent(button: button3, point: Point(x: 0, y: 1)),
-            ButtonComponent(button: button4, point: Point(x: 1, y: 1)),
-            ButtonComponent(button: button5, point: Point(x: 2, y: 1)),
-            ButtonComponent(button: button6, point: Point(x: 0, y: 2)),
-            ButtonComponent(button: button7, point: Point(x: 1, y: 2)),
-            ButtonComponent(button: button8, point: Point(x: 2, y: 2))
+            GridButton(button: button0, point: Point(x: 0, y: 0)),
+            GridButton(button: button1, point: Point(x: 1, y: 0)),
+            GridButton(button: button2, point: Point(x: 2, y: 0)),
+            GridButton(button: button3, point: Point(x: 0, y: 1)),
+            GridButton(button: button4, point: Point(x: 1, y: 1)),
+            GridButton(button: button5, point: Point(x: 2, y: 1)),
+            GridButton(button: button6, point: Point(x: 0, y: 2)),
+            GridButton(button: button7, point: Point(x: 1, y: 2)),
+            GridButton(button: button8, point: Point(x: 2, y: 2))
         ]
         
-        let commands: [Observable<Point>] = buttons
+        let playerMove: Observable<GridEvent> = buttons
             .map { gridButton in
-                return gridButton.button.rx_tap.map { _ in gridButton.point }
+                return gridButton.button.rx_tap.map { _ in .PlayerMove(gridButton.point) }
             }
-        
-        commands
             .toObservable()
             .merge()
-            .scan(initialState) { grid, point in
-                return grid.set(Sign.Circle, at: point)
+        
+        let computerMove: Observable<GridEvent> = playerMove
+            .map { _ in .ComputerMove }
+            .delaySubscription(2.0, MainScheduler.sharedInstance)
+        
+        let reset: Observable<GridEvent> = playAgainButton.rx_tap.map { _ in .Reset }
+        
+        [playerMove, computerMove, reset]
+            .toObservable()
+            .merge()
+            .scan(ScreenState.initialState) { state, event in
+                return state.handle(event)
             }
-            .subscribeNext { grid in
-                for gridButton in buttons {
-                    gridButton.state = grid.get(at: gridButton.point)
-                }
-                
-                if TicTacToe.victory(grid) {
-                    self.victoryLabel.text = "Someone wins!"
-                }
+            // grid should return desired state, update screenstate, screenstate updates views.
+            .subscribeNext { state in
+                buttons.forEach { $0.applyState(state) }
             }
             .addDisposableTo(disposeBag)
+        
+        // get grid -> apply action -> grid -> ScreenState.init -> apply screen state to the view hierarchy
+        
+        playerMove
+            .map { _ in 2 }
+            .delaySubscription(2.0, MainScheduler.sharedInstance)
+            .subscribeNext { print($0) }
+            .addDisposableTo(disposeBag)
     }
-
 }
 
-class ButtonComponent {
-    weak var button: UIButton!
-    let point: Point
+protocol Component {
+    typealias ComponentProtocol
+    func applyState(state: ComponentProtocol)
+}
+
+enum GridEvent: Event {
+    case PlayerMove(Point)
+    case ComputerMove
+    case Reset
     
-    var state: Sign = .Empty {
-        willSet {
-            button.setTitle(newValue.description, forState: .Normal)
+    func returnIf<T>(playerMove playerMove: Point -> T, computerMove: T, reset: T) -> T {
+        switch self {
+        case .PlayerMove(let point): return playerMove(point)
+        case .ComputerMove: return computerMove
+        case .Reset: return reset
         }
     }
+}
+
+protocol Event {}
+
+enum GameEvent: Event {
+    case Victory
+    case Reset
+}
+
+enum GameState {
+    case Playing
+    case GameOver
     
-    init(button: UIButton, point: Point) {
-        self.button = button
-        self.point = point
-        
-        button.setTitle(state.description, forState: .Normal)
+    func returnIf<T>(playing playing: T, gameOver: T) -> T {
+        switch self {
+        case .Playing: return playing
+        case .GameOver: return gameOver
+        }
     }
 }
+
+struct ScreenState: GridButtonParent {
+    let gridState: TicTacToeGrid
+    let gameState: GameState
+    
+    static let initialState = ScreenState(
+        gridState: TicTacToeGrid.initialState,
+        gameState: .Playing
+    )
+    
+    func set(gridState: TicTacToeGrid) -> ScreenState {
+        return ScreenState(gridState: gridState, gameState: self.gameState)
+    }
+    
+    func handle(event: GridEvent) -> ScreenState {
+        return self.gameState.returnIf(
+            playing: self.set(self.gridState.update(event)),
+            gameOver: self
+        )
+    }
+    
+    func set(gameState: GameState) -> ScreenState {
+        return ScreenState(gridState: self.gridState, gameState: gameState)
+    }
+}
+
+
 

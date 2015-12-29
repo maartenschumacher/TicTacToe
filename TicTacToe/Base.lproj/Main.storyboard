@@ -116,10 +116,16 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VYi-uJ-OVY">
+                                <rect key="frame" x="263" y="57" width="74" height="30"/>
+                                <state key="normal" title="Play again!"/>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="VYi-uJ-OVY" firstAttribute="top" secondItem="Ru2-rd-16N" secondAttribute="bottom" constant="8" id="1pR-3p-LDW"/>
                             <constraint firstItem="1I4-Br-uKb" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="7S0-SK-iph"/>
+                            <constraint firstItem="VYi-uJ-OVY" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Dfm-iU-vWA"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="1I4-Br-uKb" secondAttribute="bottom" constant="20" id="cL8-Tw-3DY"/>
                             <constraint firstItem="Ru2-rd-16N" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="cOC-M5-kRi"/>
                             <constraint firstItem="Ru2-rd-16N" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="h0K-z8-D5b"/>
@@ -136,6 +142,7 @@
                         <outlet property="button6" destination="6Rv-1u-HSX" id="iBM-QE-bLM"/>
                         <outlet property="button7" destination="D5q-T9-vpE" id="ZB8-CP-5dU"/>
                         <outlet property="button8" destination="LPT-7Z-r8Y" id="M2K-Hf-Z79"/>
+                        <outlet property="playAgainButton" destination="VYi-uJ-OVY" id="8Al-P2-8eh"/>
                         <outlet property="victoryLabel" destination="Ru2-rd-16N" id="x5F-gZ-UdX"/>
                     </connections>
                 </viewController>

@@ -12,7 +12,7 @@ struct Grid<Element: Equatable> {
     private let points: [[Element]]
     let size: Size
     
-    init(with rows: Int, columns: Int, repeatedValue: Element) {
+    init(rows: Int, columns: Int, repeatedValue: Element) {
         self.points = Array(
             count: rows,
             repeatedValue: Array(

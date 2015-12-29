@@ -15,7 +15,7 @@ struct Line<T: Equatable> {
     }
     
     var elements: [T] {
-        return fields.map { $0.element}
+        return fields.map { $0.element }
     }
     
     func contains(element: T) -> Bool {
