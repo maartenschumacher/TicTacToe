@@ -42,9 +42,7 @@ class ViewController: UIViewController {
         ]
         
         let playerMove: Observable<GridEvent> = buttons
-            .map { gridButton in
-                return gridButton.button.rx_tap.map { _ in .PlayerMove(gridButton.point) }
-            }
+            .map { $0.observable }
             .toObservable()
             .merge()
         
@@ -62,7 +60,7 @@ class ViewController: UIViewController {
             }
             // grid should return desired state, update screenstate, screenstate updates views.
             .subscribeNext { state in
-                buttons.forEach { $0.applyState(state) }
+                buttons.forEach { $0.apply(state) }
             }
             .addDisposableTo(disposeBag)
         
@@ -77,8 +75,8 @@ class ViewController: UIViewController {
 }
 
 protocol Component {
-    typealias ComponentProtocol
-    func applyState(state: ComponentProtocol)
+    typealias ComponentParent
+    func apply(state: ComponentParent)
 }
 
 enum GridEvent: Event {
@@ -97,24 +95,7 @@ enum GridEvent: Event {
 
 protocol Event {}
 
-enum GameEvent: Event {
-    case Victory
-    case Reset
-}
-
-enum GameState {
-    case Playing
-    case GameOver
-    
-    func returnIf<T>(playing playing: T, gameOver: T) -> T {
-        switch self {
-        case .Playing: return playing
-        case .GameOver: return gameOver
-        }
-    }
-}
-
-struct ScreenState: GridButtonParent {
+struct ScreenState: GridButtonParent, GameLabelParent {
     let gridState: TicTacToeGrid
     let gameState: GameState
     
@@ -130,7 +111,8 @@ struct ScreenState: GridButtonParent {
     func handle(event: GridEvent) -> ScreenState {
         return self.gameState.returnIf(
             playing: self.set(self.gridState.update(event)),
-            gameOver: self
+            won: { _ in self },
+            tie: self
         )
     }
     

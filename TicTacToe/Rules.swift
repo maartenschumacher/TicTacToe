@@ -28,7 +28,7 @@ let rules: [Rule] = [
             crosses: 0
         ),
         priority: { (player: Player) -> Priority in
-            return player.returnIf(cross: .High, circle: .Highest)
+            return player.returnIf(circle: .Highest, cross: .High)
         }
     ),
     
@@ -39,7 +39,7 @@ let rules: [Rule] = [
             crosses: 2
         ),
         priority: { (player: Player) -> Priority in
-            return player.returnIf(cross: .Highest, circle: .High)
+            return player.returnIf(circle: .High, cross: .Highest)
         }
     ),
     

@@ -42,10 +42,10 @@ func ==(lhs: GridLineAnalysis, rhs: GridLineAnalysis) -> Bool {
 }
 
 enum Player {
-    case Cross
     case Circle
+    case Cross
     
-    func returnIf<T>(cross cross: T, circle: T) -> T {
+    func returnIf<T>(circle circle: T, cross: T) -> T {
         switch self {
         case .Circle: return circle
         case .Cross: return cross
@@ -53,7 +53,7 @@ enum Player {
     }
     
     var sign: Sign {
-        return returnIf(cross: .Cross, circle: .Circle)
+        return returnIf(circle: .Circle, cross: .Cross)
     }
 }
 
