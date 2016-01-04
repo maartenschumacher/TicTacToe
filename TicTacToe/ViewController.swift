@@ -36,7 +36,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         let gridComponent = GridComponent(children: [
-            GridButton(button: button0, point: Point(x: 0, y: 0), outputObservable: gridComponent.observable),
+            GridButton(button: button0, point: Point(x: 0, y: 0)),
             GridButton(button: button1, point: Point(x: 1, y: 0)),
             GridButton(button: button2, point: Point(x: 2, y: 0)),
             GridButton(button: button3, point: Point(x: 0, y: 1)),
@@ -47,22 +47,9 @@ class ViewController: UIViewController {
             GridButton(button: button8, point: Point(x: 2, y: 2))
         ])
         
+
+        
         let labelComponent = GameLabel(label: victoryLabel)
-        
-        let reset: Observable<GridEvent> = playAgainButton.rx_tap.map { _ in .Reset }
-        
-        [gridComponent.observable, reset]
-            .toObservable()
-            .merge()
-            .scan(ScreenState.initialState) { state, event in
-                return state.handle(event)
-            }
-            .subscribeNext { state in
-                gridComponent.apply(state)
-                labelComponent.apply(state)
-            }
-            .addDisposableTo(disposeBag)
-                
     }
 }
 

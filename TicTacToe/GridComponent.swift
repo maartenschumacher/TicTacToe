@@ -15,6 +15,7 @@ protocol GridParent {
 
 class GridComponent: Component {
     let children: [GridButton]
+    let bag: DisposeBag = DisposeBag()
     
     var observable: Observable<GridEvent> {
         let playerMove: Observable<GridEvent> = self.children
@@ -48,6 +49,12 @@ class GridComponent: Component {
     
     init(children: [GridButton]) {
         self.children = children
+        
+        observable
+            .startWith(GridEvent.Reset)
+            .subscribeNext { event in
+                self.state = self.state.update(event)
+            }.addDisposableTo(bag)
     }
     
     func apply(state: GridParent) {
