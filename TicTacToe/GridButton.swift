@@ -15,8 +15,6 @@ class GridButton: Component {
     weak var button: UIButton!
     let point: Point
     
-    let disposeBag = DisposeBag()
-    
     var observable: Observable<Point> {
         return button.rx_tap.map { _ in self.point }
     }
@@ -26,17 +24,9 @@ class GridButton: Component {
         button.setTitle(sign.description, forState: .Normal)
     }
     
-    init(button: UIButton, point: Point, outputObservable: Observable<TicTacToeGrid>) {
+    init(button: UIButton, point: Point) {
         self.button = button
         self.point = point
-        
-        outputObservable
-            .startWith(TicTacToeGrid.initialState)
-            .subscribeNext { state in
-                self.apply(state)
-            }
-            .addDisposableTo(disposeBag)
-        
         //button.setTitle(self.state.description, forState: .Normal)
     }
 }
