@@ -22,7 +22,7 @@ struct TicTacToeGrid {
     func update(event: GridEvent) -> TicTacToeGrid {
         return TicTacToeGrid(
             grid: event.returnIf(
-                playerMove: { point in self.grid.set(human.sign, at: point)},
+                playerMove: { point in self.grid.set(human.sign, at: point) },
                 computerMove: self.grid.set(computer.sign, at: self.computerMove().point),
                 reset: TicTacToeGrid.initialState.grid
             )

@@ -16,7 +16,8 @@ protocol GameLabelParent {
 
 class GameLabel: Component {
     weak var label: UILabel!
-    var state: GameState {
+    
+    private var state = GameState.initialState {
         didSet {
             self.label.text = self.state.description
         }
@@ -24,7 +25,6 @@ class GameLabel: Component {
     
     init(label: UILabel) {
         self.label = label
-        self.state = GameState.initialState
     }
     
     func apply(state: GameLabelParent) {

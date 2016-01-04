@@ -27,6 +27,6 @@ enum Sign {
     }
     
     var description: String {
-        return returnIf(empty: "Empty", cross: "Cross", circle: "Circle")
+        return returnIf(empty: "...", cross: "Cross", circle: "Circle")
     }
 }
