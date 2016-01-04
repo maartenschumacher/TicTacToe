@@ -15,8 +15,6 @@ class GridButton: Component {
     weak var button: UIButton!
     let point: Point
     
-    let disposeBag = DisposeBag()
-    
     var observable: Observable<Point> {
         return button.rx_tap.map { _ in self.point }
     }

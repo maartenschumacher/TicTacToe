@@ -26,12 +26,6 @@ class ViewController: UIViewController {
     
     let disposeBag = DisposeBag()
     
-    private var state = ScreenState.initialState {
-        didSet {
-            // self.children.apply(state)
-        }
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -47,9 +41,18 @@ class ViewController: UIViewController {
             GridButton(button: button8, point: Point(x: 2, y: 2))
         ])
         
-
-        
         let labelComponent = GameLabel(label: victoryLabel)
+        
+        gridComponent.observable
+        .startWith(GridEvent.Reset)
+        .scan(ScreenState.initialState) { state, event in
+            return state.handle(event)
+        }
+        .subscribeNext {
+            gridComponent.apply($0)
+            labelComponent.apply($0)
+        }
+        .addDisposableTo(disposeBag)
     }
 }
 
