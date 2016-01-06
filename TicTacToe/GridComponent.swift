@@ -37,7 +37,6 @@ class GridComponent: Component {
         return [playerMove, computerMove]
             .toObservable()
             .merge()
-            .debug("gridstrema")
     }
     
     private var state = TicTacToeGrid.initialState {
