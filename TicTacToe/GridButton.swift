@@ -11,32 +11,18 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class GridButton: Component {
-    weak var button: UIButton!
+struct GridButton: Component {
     let point: Point
     
-    let disposeBag = DisposeBag()
-    
-    var observable: Observable<Point> {
-        return button.rx_tap.map { _ in self.point }
+    func inputTransform(input: Observable<()>, output: Observable<TicTacToeGrid>) -> Observable<Point> {
+        return input.map { _ in self.point }
     }
     
-    func apply(state: TicTacToeGrid) {
-        let sign = state.grid.get(at: self.point)
-        button.setTitle(sign.description, forState: .Normal)
-    }
-    
-    init(button: UIButton, point: Point, outputObservable: Observable<TicTacToeGrid>) {
-        self.button = button
-        self.point = point
-        
-        outputObservable
-            .startWith(TicTacToeGrid.initialState)
-            .subscribeNext { state in
-                self.apply(state)
+    func outputTransform(output: Observable<TicTacToeGrid>) -> Observable<String> {
+        return output
+            .map { state in
+                state.grid.get(at: self.point)
             }
-            .addDisposableTo(disposeBag)
-        
-        //button.setTitle(self.state.description, forState: .Normal)
+            .map { $0.description }
     }
 }

@@ -13,22 +13,22 @@ protocol GridParent {
     var gridState: TicTacToeGrid { get }
 }
 
-class GridComponent: Component {
-    let children: [GridButton]
-    
-    var observable: Observable<GridEvent> {
-        let playerMove: Observable<GridEvent> = self.children
-            .map { $0.observable }
-            .toObservable()
-            .merge()
-            .filter { point in
-                self.state.grid.get(at: point) == .Empty
+struct GridComponent: Component {
+    func inputTransform(input: Observable<Point>, output: Observable<GridParent>) -> Observable<GridEvent> {
+        let playerMove = input
+            .withLatestFrom(output) { point, grid in
+                (point, grid)
             }
-            .map { point in .PlayerMove(point) }
+            .filter { (point: Point, grid: GridParent) in
+                grid.gridState.grid.get(at: point) == .Empty
+            }
+            .map { point, grid
+                in GridEvent.PlayerMove(point)
+            }
         
         let computerMove = playerMove.flatMap { _ in
-                timer(1.0, MainScheduler.sharedInstance)
-                    .map { _ in GridEvent.ComputerMove }
+            timer(1.0, MainScheduler.sharedInstance)
+                .map { _ in GridEvent.ComputerMove }
             }
             .publish()
         
@@ -39,22 +39,12 @@ class GridComponent: Component {
             .merge()
     }
     
-    private var state = TicTacToeGrid.initialState {
-        didSet {
-            self.children.forEach { $0.apply(self.state) }
-        }
-    }
-    
-    init(children: [GridButton]) {
-        self.children = children
-    }
-    
-    func apply(state: GridParent) {
-        self.state = state.gridState
+    func outputTransform(output: Observable<GridParent>) -> Observable<TicTacToeGrid> {
+        return output.map { $0.gridState }
     }
 }
 
-enum GridEvent: Event {
+enum GridEvent {
     case PlayerMove(Point)
     case ComputerMove
     case Reset

@@ -35,34 +35,53 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let gridComponent = GridComponent(children: [
-            GridButton(button: button0, point: Point(x: 0, y: 0), outputObservable: gridComponent.observable),
-            GridButton(button: button1, point: Point(x: 1, y: 0)),
-            GridButton(button: button2, point: Point(x: 2, y: 0)),
-            GridButton(button: button3, point: Point(x: 0, y: 1)),
-            GridButton(button: button4, point: Point(x: 1, y: 1)),
-            GridButton(button: button5, point: Point(x: 2, y: 1)),
-            GridButton(button: button6, point: Point(x: 0, y: 2)),
-            GridButton(button: button7, point: Point(x: 1, y: 2)),
-            GridButton(button: button8, point: Point(x: 2, y: 2))
-        ])
+        let gridButtons = zip(
+                flatRepeat([0,1,2], times: 3),
+                [0,1,2].flatMap { repeatT($0, times: 3) }
+            )
+            .map { x, y in
+                Point(x: x, y: y)
+            }
+            .map { point in
+                GridButton(point: point)
+            }
+        
+        let buttons = [
+                button0, button1, button2,
+                button3, button4, button5,
+                button6, button7, button8
+            ]
+            .map { outlet in
+                ButtonComponent(outlet: outlet)
+            }
         
         let labelComponent = GameLabel(label: victoryLabel)
         
         let reset: Observable<GridEvent> = playAgainButton.rx_tap.map { _ in .Reset }
         
-        [gridComponent.observable, reset]
-            .toObservable()
-            .merge()
-            .scan(ScreenState.initialState) { state, event in
-                return state.handle(event)
+        let componentFactory = ComponentFactory(
+            initialState: ScreenState.initialState,
+            flow: GridComponent() |> gridButtons |> buttons,
+            transform: { (input: Observable<GridEvent>) in
+                input
+                    .scanWithStart(ScreenState.initialState) { state, event in
+                        state.handle(event)
+                    }
             }
-            .subscribeNext { state in
-                gridComponent.apply(state)
-                labelComponent.apply(state)
-            }
-            .addDisposableTo(disposeBag)
-                
+        )
+        
+//        [gridComponent.observable, reset]
+//            .toObservable()
+//            .merge()
+//            .scan(ScreenState.initialState) { state, event in
+//                return state.handle(event)
+//            }
+//            .subscribeNext { state in
+//                gridComponent.apply(state)
+//                labelComponent.apply(state)
+//            }
+//            .addDisposableTo(disposeBag)
+//                
     }
 }
 
